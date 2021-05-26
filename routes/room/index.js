@@ -40,18 +40,23 @@ router.post("/create", checkDuplicate, function (req, res) {
 
 router.post("/join", function (req, res) {
   const { code, room_name, user_id } = req.body;
-  console.log(user_id);
 
   roomModel
     .findOneAndUpdate(
-      { $or: [{ room_name: room_name }, { code: code }] },
+      { room_name: room_name },
       {
         $addToSet: {
           users: user_id,
         },
       }
     )
-    .then((result) => res.send(result))
+    .then((result) => {
+      if (result) {
+        res.send(result);
+      } else {
+        res.status(400).send({ error: "Room doesn't exists." });
+      }
+    })
     .catch((error) => res.status(400).send(error));
 });
 
