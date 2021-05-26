@@ -35,14 +35,6 @@ const useStyles = makeStyles((theme) => ({
 
 function NavBar({ username, id, profile_image_id }) {
   const classes = useStyles();
-  const [image, setImage] = React.useState(null);
-
-  React.useEffect(() => {
-    axios
-      .get("/uploads/login-background.jpg")
-      .then(({ data }) => alert(data))
-      .catch((error) => alert(JSON.stringify(error, null, 2)));
-  }, []);
 
   const logOut = () => {
     axios.post("/user/log-out").then(() => window.location.reload());

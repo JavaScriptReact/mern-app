@@ -82,7 +82,6 @@ function Room({ user_id, username }) {
     axios
       .get("/room/messages/" + roomId)
       .then(({ data }) => {
-        alert(JSON.stringify(data.messages, null, 2));
         setMessages(data.messages);
       })
       .catch((error) => alert(JSON.stringify(error, null, 2)));

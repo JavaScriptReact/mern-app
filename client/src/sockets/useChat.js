@@ -10,7 +10,7 @@ function useChat(roomId, user_id) {
   const [newMember, setNewMember] = useState(null);
 
   useEffect(() => {
-    client_socket.current = io("http://localhost:5000", {
+    client_socket.current = io("https://lukas-the-coder.herokuapp.com/", {
       query: {
         roomId,
       },

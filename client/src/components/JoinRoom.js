@@ -34,7 +34,8 @@ function JoinRoom({ user_id, username, created_at, user_join }) {
     if (roomName) {
       axios
         .post("/room/join", { username, user_id, room_name: roomName })
-        .then((result) => {
+        .then(({ data }) => {
+          if (data.error) return alert(data.error);
           history.push(`/room/${roomName}`);
           user_join({ user_id, username, created_at });
         })
