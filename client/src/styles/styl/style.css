@@ -8,10 +8,6 @@ html {
 }
 
 body {
-  height: 100vh;
-  width: 100vw;
-  display: -ms-grid;
-  display: grid;
-  place-content: center;
+  overflow-x: hidden;
 }
 /*# sourceMappingURL=style.css.map */

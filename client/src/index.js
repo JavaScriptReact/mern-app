@@ -1,52 +1,85 @@
-import React, { useState } from "react";
-import ReactDom from "react-dom";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import ReactDom from "react-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+  useHistory,
+  useLocation,
+} from "react-router-dom";
+import { Provider, useDispatch } from "react-redux";
+import store from "./redux/store";
+
+import HomePage from "./containers/HomePage";
+import Room from "./containers/Room";
+import RegistrationForm from "./containers/Registration";
+import NavBar from "./components/NavBar";
 
 import "./styles/styl/style.css";
 
 function Application() {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const location = useLocation();
+  const [isLogged, setIsLogged] = useState(false);
+
+  useEffect(() => {
+    if (!location.pathname.includes("/authentication")) {
+      axios
+        .get("/user/verify")
+        .then(({ data }) => {
+          if (data.unLogged) {
+            history.push("/authentication/sign-up");
+          } else {
+            setIsLogged(true);
+            dispatch({
+              type: "verify",
+              payload: data.userData,
+            });
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      axios.get("/user/verify").then(({ data }) => {
+        if (!data.unLogged) {
+          history.push("/room");
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
   return (
-    <Switch>
-      <Route path="/" exact>
-        <Home />
-      </Route>
-      <Route path="*">
-        <h1>Error Page | Error : 404 Message : Not Found</h1>
-      </Route>
-    </Switch>
+    <>
+      {isLogged && <NavBar />}
+      <Switch>
+        <Route path="/" exact>
+          <Redirect to="/room" />
+        </Route>
+        <Route path="/room" exact>
+          <HomePage />
+        </Route>
+        <Route path="/room/:roomId">
+          <Room />
+        </Route>
+        <Route path="/authentication">
+          <RegistrationForm />
+        </Route>
+        <Route path="*">
+          <h1>Error Page | Error : 404 Message : Not Found</h1>
+        </Route>
+      </Switch>
+    </>
   );
 }
 
-const Home = () => {
-  const [value, setValue] = useState("");
-
-  const send = () => {
-    axios
-      .post("/api/usernames", { value: value })
-      .then(() => setValue(""))
-      .catch((error) => alert(error));
-  };
-  return (
-    <section>
-      <label htmlFor="input">Username : </label>
-      <input
-        type="text"
-        id="input"
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-      />
-      <button type="button" onClick={send}>
-        Send
-      </button>
-      <a href="/api/users">Application API</a>
-    </section>
-  );
-};
-
 ReactDom.render(
   <Router>
-    <Application />
+    <Provider store={store}>
+      <Application />
+    </Provider>
   </Router>,
   document.getElementById("root")
 );
